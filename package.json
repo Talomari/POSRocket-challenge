@@ -1,0 +1,31 @@
+{
+  "name": "tal-validation-transaction",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Talomari/POSRocket-challenge.git"
+  },
+  "keywords": [
+    "tal",
+    "omari",
+    "transactions",
+    "tal-validation-transaction",
+    "posRocket",
+    "challenge"
+  ],
+  "author": "Tal Omari",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Talomari/POSRocket-challenge/issues"
+  },
+  "homepage": "https://github.com/Talomari/POSRocket-challenge#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "xml2js": "^0.4.22"
+  }
+}
