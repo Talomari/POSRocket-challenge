@@ -1,79 +1,43 @@
-var fs = require("fs"),
-  xml2js = require("xml2js");
-var parser = new xml2js.Parser();
+var fs = require("fs");
+const parseStringSync = require("xml2js-parser").parseStringSync;
 
-const fileValidation = (fileName, pathFile) => {
+const fileValidation = async (fileName, pathFile) => {
   let extention = fileName.split(".")[1];
   if (extention === "json") {
-    fs.readFile(pathFile, "utf8", function(err, transaction) {
-      if (err) {
-        console.log(err);
-        res.sendStatus(500);
-        return;
-      }
-      return new Promise((resolve, reject) => {
-        return resolve(transaction);
-        if (
-          transaction[tax_money].amount ===
-          transaction.total_collected_money.amount * 0.16
-        ) {
-          return resolve(transaction);
-        } else {
-          if (
-            transaction.tax_money.amount >
-            transaction.total_collected_money.amount * 0.16
-          ) {
-            returnreject(
-              new Error(
-                "Tax money amount bigger than collected money amount, and dose not equaled "
-              )
-            );
-          } else {
-            return reject(
-              new Error(
-                "Tax money amount less than collected money amount, and dose not equaled "
-              )
-            );
-          }
-        }
-      });
-    });
+    let fileJSON = await fs.readFileSync(pathFile, "utf8");
+    let parseJSON = JSON.parse(fileJSON);
+    let transaction = await taxValidation(parseJSON);
+    return transaction;
   } else {
-    // do somthinig
-    return extention;
+    let fileXML = await fs.readFileSync(pathFile, "utf8");
+    let convertToJSON = await parseStringSync(fileXML);
+    return taxValidation(convertToJSON.root);
   }
 };
 
 const taxValidation = transaction => {
   return new Promise((resolve, reject) => {
-    resolve(transaction);
-    if (
-      transaction[tax_money].amount ===
-      transaction.total_collected_money.amount * 0.16
-    ) {
-      resolve(transaction);
-    } else {
-      if (
-        transaction.tax_money.amount >
-        transaction.total_collected_money.amount * 0.16
-      ) {
-        reject(
-          new Error(
-            "Tax money amount bigger than collected money amount, and dose not equaled "
-          )
-        );
+    try {
+      let tax = transaction.tax_money;
+      let collectedTaxAmount;
+      if (Array.isArray(tax)) {
+        collectedTaxAmount =
+          parseFloat(transaction.total_collected_money[0].amount[0]) * 0.16;
+
+        let taxAmount = parseFloat(tax[0].amount[0]);
+        taxAmount === collectedTaxAmount ? resolve(true) : resolve(false);
       } else {
-        reject(
-          new Error(
-            "Tax money amount less than collected money amount, and dose not equaled "
-          )
-        );
+        collectedTaxAmount = transaction.total_collected_money.amount * 0.16;
+        transaction.tax_money.amount === collectedTaxAmount
+          ? resolve(true)
+          : resolve(false);
       }
+    } catch (err) {
+      reject(err);
     }
   });
 };
 
 module.exports = {
   fileValidation,
-  taxValidation
 };
